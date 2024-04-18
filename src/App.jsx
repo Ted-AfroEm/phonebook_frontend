@@ -26,17 +26,27 @@ const App = () => {
     const nameExist = persons.find((person) => person.name === newName);
     const personContact = { name: newName, number: newNumber };
     if (nameExist === undefined) {
-      phonebookService.create(personContact).then((returnedNewPerson) => {
-        setPersons([...persons, returnedNewPerson]);
-        setNewName("");
-        setNewNumber("");
-        setNoticationMessage(`Added ${newName}`);
-        setSuccess(true);
-        setTimeout(() => {
-          setNoticationMessage(null);
-          setSuccess(false);
-        }, 5000);
-      });
+      phonebookService
+        .create(personContact)
+        .then((returnedNewPerson) => {
+          setPersons([...persons, returnedNewPerson]);
+          setNewName("");
+          setNewNumber("");
+          setNoticationMessage(`Added ${newName}`);
+          setSuccess(true);
+          setTimeout(() => {
+            setNoticationMessage(null);
+            setSuccess(false);
+          }, 5000);
+        })
+        .catch((error) => {
+          setNoticationMessage(error.response.data.error);
+          setError(true);
+          setTimeout(() => {
+            setNoticationMessage(null);
+            setError(false);
+          }, 5000);
+        });
     } else {
       let confirmUpdatePhone = window.confirm(
         `${newName} is already added to phonebook, replaace the old number with a new one?`
@@ -48,6 +58,7 @@ const App = () => {
         phonebookService
           .update(updatePerson[0].id, personContact)
           .then((returnedUpdated) => {
+            console.log(returnedUpdated);
             let updatedPersons = persons.map((person) => {
               if (person.id === returnedUpdated.id) {
                 return returnedUpdated;
